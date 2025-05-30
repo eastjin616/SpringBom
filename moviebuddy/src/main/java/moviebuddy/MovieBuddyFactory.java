@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Scope;
 
-import moviebuddy.domain.CsvMovieReader;
+import moviebuddy.data.CsvMovieReader;
 import moviebuddy.domain.MovieFinder;
 import moviebuddy.domain.MovieReader;
 

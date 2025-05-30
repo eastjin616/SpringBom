@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import moviebuddy.ApplicationException;
+import moviebuddy.data.JaxbMovieReader;
 import moviebuddy.util.FileSystemUtils;
 
 @Service

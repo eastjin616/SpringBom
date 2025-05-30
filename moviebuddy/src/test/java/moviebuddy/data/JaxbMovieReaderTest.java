@@ -1,4 +1,4 @@
-package moviebuddy.domain;
+package moviebuddy.data;
 
 import java.util.List;
 
@@ -11,6 +11,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import moviebuddy.MovieBuddyFactory;
+import moviebuddy.data.JaxbMovieReader;
+import moviebuddy.domain.Movie;
 
 @SpringJUnitConfig(MovieBuddyFactory.class)
 public class JaxbMovieReaderTest {
