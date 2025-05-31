@@ -28,7 +28,7 @@ public class MovieFinder {
 	private MovieReader movieReader = new JaxbMovieReader();
 	
 	@Autowired
-	public MovieFinder(@Qualifier("csvMovieReader")MovieReader movieReader) {
+	public MovieFinder(MovieReader movieReader) {
 		this.movieReader = Objects.requireNonNull(movieReader);
 	}
 	
