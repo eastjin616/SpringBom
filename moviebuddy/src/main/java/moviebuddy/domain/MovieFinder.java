@@ -1,63 +1,44 @@
 package moviebuddy.domain;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import moviebuddy.ApplicationException;
-import moviebuddy.data.JaxbMovieReader;
-import moviebuddy.util.FileSystemUtils;
 
 @Service
 public class MovieFinder {
 	
-	private MovieReader movieReader = new JaxbMovieReader();
-	
-	@Autowired
+	private final MovieReader movieReader;
+
 	public MovieFinder(MovieReader movieReader) {
 		this.movieReader = Objects.requireNonNull(movieReader);
 	}
 	
-    /**
-     * 저장된 영화 목록에서 감독으로 영화를 검색한다.
-     * 
-     * @param directedBy 감독
-     * @return 검색된 영화 목록
-     */
-    public List<Movie> directedBy(String directedBy) {
-        return movieReader.loadMovies().stream()
-                           .filter(it -> it.getDirector().toLowerCase().contains(directedBy.toLowerCase()))
-                           .collect(Collectors.toList());
-    }
-
-    /**
-     * 저장된 영화 목록에서 개봉년도로 영화를 검색한다.
-     * 
-     * @param releasedYearBy
-     * @return 검색된 영화 목록
-     */
-    public List<Movie> releasedYearBy(int releasedYearBy) {
-        return movieReader.loadMovies()
-        				   .stream()
-                           .filter(it -> Objects.equals(it.getReleaseYear(), releasedYearBy))
-                           .collect(Collectors.toList());
-    }
-
-    
-    
+	/**
+	 * 저장된 영화 목록에서 감독으로 영화를 검색한다.   
+	 * 
+	 * @param directedBy 감독
+	 * @return 검색된 영화 목록
+	 */
+	public List<Movie> directedBy(String directedBy) {
+		return movieReader.loadMovies()
+						  .stream()
+						  .filter(it -> it.getDirector().toLowerCase().contains(directedBy.toLowerCase()))
+						  .collect(Collectors.toList());		
+	}
+	
+	/**
+	 * 저장된 영화 목록에서 개봉년도로 영화를 검색한다.
+	 * 
+	 * @param releasedYearBy
+	 * @return 검색된 영화 목록
+	 */
+	public List<Movie> releasedYearBy(int releasedYearBy) {
+		return movieReader.loadMovies()
+						  .stream()
+						  .filter(it -> Objects.equals(it.getReleaseYear(), releasedYearBy))
+						  .collect(Collectors.toList());		
+    }	
 
 }
