@@ -1,7 +1,9 @@
 package moviebuddy.data;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -39,8 +41,7 @@ public class CsvMovieReader extends AbstractFileSystemMovieReader implements Mov
 	@Override
     public List<Movie> loadMovies() {
         try {
-            final URI resourceUri = ClassLoader.getSystemResource(getMetadata()).toURI();
-            final Path data = Path.of(FileSystemUtils.checkFileSystem(resourceUri));
+            final InputStream content = getMetadataResource().getInputStream();
             final Function<String, Movie> mapCsv = csv -> {
                 try {
                     // split with comma
@@ -62,12 +63,13 @@ public class CsvMovieReader extends AbstractFileSystemMovieReader implements Mov
                 }
             };
 
-            return Files.readAllLines(data, StandardCharsets.UTF_8)
-                        .stream()
+            
+            return new BufferedReader(new InputStreamReader(content, StandardCharsets.UTF_8))
+            			.lines()
                         .skip(1)
                         .map(mapCsv)
                         .collect(Collectors.toList());
-        } catch (IOException | URISyntaxException error) {
+        } catch (IOException error) {
             throw new ApplicationException("failed to load movies data.", error);
         }
     }
