@@ -16,6 +16,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.cache.annotation.CacheResult;
+
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.Cache;
@@ -40,6 +42,7 @@ public class CsvMovieReader extends AbstractFileSystemMovieReader implements Mov
      * @return 불러온 영화 목록
      */
 	@Override
+	@CacheResult(cacheName = "movies")
     public List<Movie> loadMovies() {
         try {
             final InputStream content = getMetadataResource().getInputStream();
