@@ -33,7 +33,7 @@ public class MovieBuddyApplication {
 	 * TODO 4. 시스템 언어설정에 따라 애플리케이션 메시지가 영어 또는 한글로 출력되게 하라
 	 */	
 	
-	void run(String[] args) throws Exception {
+	public void run(String[] args) throws Exception {
 		final MovieFinder movieFinder = new MovieFinder();
 		
 		final AtomicBoolean running = new AtomicBoolean(true);

@@ -12,11 +12,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
@@ -31,7 +34,11 @@ import moviebuddy.util.FileSystemUtils;
 @Repository
 public class CsvMovieReader extends AbstractFileSystemMovieReader implements MovieReader{
 	
+	private final CacheManager cacheManager;
 	
+	public CsvMovieReader(CacheManager cacheManager) {
+		this.cacheManager = Objects.requireNonNull(cacheManager);
+	}
 	
 	/**
      * 영화 메타데이터를 읽어 저장된 영화 목록을 불러온다.
@@ -40,6 +47,13 @@ public class CsvMovieReader extends AbstractFileSystemMovieReader implements Mov
      */
 	@Override
     public List<Movie> loadMovies() {
+		//캐시에 저장된 데이터가 있다면, 즉시 반환
+		Cache cache = cacheManager.getCache(getClass().getName());
+		List<Movie> movies = cache.get("csv.movies", List.class);
+		if(Objects.nonNull(movies) && movies.size() > 0) {
+			return movies;
+		}
+		
         try {
             final InputStream content = getMetadataResource().getInputStream();
             final Function<String, Movie> mapCsv = csv -> {
@@ -64,7 +78,7 @@ public class CsvMovieReader extends AbstractFileSystemMovieReader implements Mov
             };
 
             
-            return new BufferedReader(new InputStreamReader(content, StandardCharsets.UTF_8))
+            movies = new BufferedReader(new InputStreamReader(content, StandardCharsets.UTF_8))
             			.lines()
                         .skip(1)
                         .map(mapCsv)
@@ -72,5 +86,9 @@ public class CsvMovieReader extends AbstractFileSystemMovieReader implements Mov
         } catch (IOException error) {
             throw new ApplicationException("failed to load movies data.", error);
         }
-    }
+        
+        //캐시에 저장된 데이터 없으면 획득한 데이터를 캐시에 저장하고 반환
+        cache.put("csv.movies", movies);
+        return movies;
+	}
 }
