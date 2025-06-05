@@ -18,7 +18,15 @@ import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurer;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.interceptor.CacheResolver;
+import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
+import org.springframework.cache.interceptor.SimpleCacheResolver;
+import org.springframework.cache.interceptor.SimpleKeyGenerator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -33,6 +41,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.oxm.Unmarshaller;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -51,8 +62,8 @@ import moviebuddy.domain.MovieReader;
 @PropertySource("/application.properties")
 @ComponentScan(basePackages = {"moviebuddy"})
 @Import({ MovieBuddyFactory.DomainModuleConfig.class, MovieBuddyFactory.DataSourceModuleConfig.class })
-@EnableAspectJAutoProxy
-public class MovieBuddyFactory {
+@EnableCaching
+public class MovieBuddyFactory implements CachingConfigurer{
 	
 	@Bean
 	public Jaxb2Marshaller jaxb2Marshaller() {
@@ -85,13 +96,38 @@ public class MovieBuddyFactory {
 		//Advisor = PointCut(대상 선정 알고리즘) + Advice(부가기능)
 		return new DefaultPointcutAdvisor(pointcut, advice);
 	}
-	*/
+	
 	
 	@Bean
 	public CachingAspect CachingAspect(CacheManager cacheManager) {
 		return new CachingAspect(cacheManager);
 	}
+	*/
 
+	@Override
+	public CacheManager cacheManager() {
+		// 이미 스프링 컨테이너에 등록을 해놨음
+		return caffeineCacheManager();
+	}
+
+	@Override
+	public CacheResolver cacheResolver() {
+		return new SimpleCacheResolver(caffeineCacheManager());
+	}
+
+	@Override
+	public KeyGenerator keyGenerator() {
+		return new SimpleKeyGenerator();
+	}
+
+	@Override
+	public CacheErrorHandler errorHandler() {
+		//@EnableAsync --> AsyncConfigurer
+		//@EnableScheduling --> SchedulingConfigurer
+		
+		return new SimpleCacheErrorHandler();
+	}
+	
 	@Configuration
 	static class DomainModuleConfig{
 		
@@ -99,7 +135,6 @@ public class MovieBuddyFactory {
 	
 	@Configuration
 	static class DataSourceModuleConfig{
-		
 		
 	}
 
